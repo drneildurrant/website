@@ -6,6 +6,7 @@ to posts.json (same-origin file the home page fetches). Pure standard library
 so the GitHub Action needs no pip install. Run: python3 scripts/fetch_substack.py
 """
 
+import gzip
 import html
 import json
 import re
@@ -13,6 +14,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+import zlib
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
@@ -24,15 +26,25 @@ MAX_POSTS = 4          # store a few; the page shows the top 3
 EXCERPT_WORDS = 28
 
 # Substack sits behind Cloudflare, which 403s requests that don't look like a
-# real browser. Send a browser User-Agent and the headers a browser would.
+# real browser. Send a full browser-like header set (UA + Sec-Fetch/Sec-CH-UA
+# + gzip) so Cloudflare's browser-integrity check lets the request through.
 REQUEST_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/124.0.0.0 Safari/537.36"
     ),
-    "Accept": "application/rss+xml, application/xml;q=0.9, text/xml;q=0.8, */*;q=0.5",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Encoding": "gzip, deflate",
+    "Sec-CH-UA": '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+    "Sec-CH-UA-Mobile": "?0",
+    "Sec-CH-UA-Platform": '"macOS"',
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "Upgrade-Insecure-Requests": "1",
 }
 RETRIES = 3            # transient 403/429/5xx happen; back off and retry
 
@@ -65,7 +77,13 @@ def fetch_feed() -> bytes:
     for attempt in range(RETRIES):
         try:
             with urllib.request.urlopen(req, timeout=30) as resp:
-                return resp.read()
+                raw = resp.read()
+                encoding = resp.headers.get("Content-Encoding", "").lower()
+                if encoding == "gzip":
+                    return gzip.decompress(raw)
+                if encoding == "deflate":
+                    return zlib.decompress(raw)
+                return raw
         except (urllib.error.HTTPError, urllib.error.URLError) as err:
             last_err = err
             if attempt < RETRIES - 1:
