@@ -10,6 +10,8 @@ import html
 import json
 import re
 import sys
+import time
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
@@ -20,6 +22,19 @@ FEED_URL = "https://neildurrant.substack.com/feed"
 OUT = Path(__file__).resolve().parent.parent / "posts.json"
 MAX_POSTS = 4          # store a few; the page shows the top 3
 EXCERPT_WORDS = 28
+
+# Substack sits behind Cloudflare, which 403s requests that don't look like a
+# real browser. Send a browser User-Agent and the headers a browser would.
+REQUEST_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/124.0.0.0 Safari/537.36"
+    ),
+    "Accept": "application/rss+xml, application/xml;q=0.9, text/xml;q=0.8, */*;q=0.5",
+    "Accept-Language": "en-US,en;q=0.9",
+}
+RETRIES = 3            # transient 403/429/5xx happen; back off and retry
 
 _TAGS = re.compile(r"<[^>]+>")
 _WS = re.compile(r"\s+")
@@ -43,10 +58,25 @@ def fmt_date(raw: str) -> str:
     return dt.strftime("%d %b %Y").lstrip("0")
 
 
+def fetch_feed() -> bytes:
+    """Fetch the feed, retrying transient failures with exponential backoff."""
+    req = urllib.request.Request(FEED_URL, headers=REQUEST_HEADERS)
+    last_err: Exception | None = None
+    for attempt in range(RETRIES):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return resp.read()
+        except (urllib.error.HTTPError, urllib.error.URLError) as err:
+            last_err = err
+            if attempt < RETRIES - 1:
+                wait = 2 ** attempt
+                print(f"Feed fetch failed ({err}); retrying in {wait}s", file=sys.stderr)
+                time.sleep(wait)
+    raise SystemExit(f"Could not fetch {FEED_URL}: {last_err}")
+
+
 def main() -> int:
-    req = urllib.request.Request(FEED_URL, headers={"User-Agent": "neildurrant.com/1.0"})
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        xml = resp.read()
+    xml = fetch_feed()
 
     root = ET.fromstring(xml)
     channel = root.find("channel")
