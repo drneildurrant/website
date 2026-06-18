@@ -2,8 +2,15 @@
 """Refresh posts.json from the Substack RSS feed.
 
 Pulls the latest posts from the "Provocations" feed and writes the newest few
-to posts.json (same-origin file the home page fetches). Pure standard library
-so the GitHub Action needs no pip install. Run: python3 scripts/fetch_substack.py
+to posts.json (same-origin file the home page fetches). Pure standard library,
+so there's nothing to install.
+
+Run this manually from your own machine when you publish, then commit the
+result: python3 scripts/fetch_substack.py && git add posts.json && git commit
+
+(This used to run on a schedule in GitHub Actions, but Substack's Cloudflare
+blocks the runner's datacenter IP with a 403. It works fine from a normal
+network, hence the manual workflow.)
 """
 
 import gzip
