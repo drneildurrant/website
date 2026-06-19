@@ -4,15 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mātṛkā Mantra Coder / Decoder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lexend:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#1a1714; --panel:#241f1a; --ink:#f0e6d8; --muted:#b3a691;
-          --accent:#d9a441; --accent2:#9c6b3f; --line:#3a322a; --ok:#8fbf6f; }
+  /* On-brand — shared with neildurrant.com. Greyscale + crimson (Śakti) accent. */
+  :root { --bg:#0b0c0d; --panel:#141618; --ink:#d8dbdd; --muted:#8a9094;
+          --accent:#e2616c; --accent2:#cc2f3d; --line:#2b2e31; --ok:#7faa86;
+          --deep:#0f1011; --hover:#1c1f22; }
   * { box-sizing: border-box; }
   body { margin:0; background:var(--bg); color:var(--ink);
-         font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+         font-family:'Lexend', system-ui, -apple-system, sans-serif; font-weight:300;
          line-height:1.5; }
   header { padding:20px 24px 8px; border-bottom:1px solid var(--line); }
-  h1 { margin:0 0 4px; font-size:24px; color:var(--accent); }
+  h1 { margin:0 0 4px; font-family:'Cormorant Garamond', serif; font-weight:600; font-size:30px; color:var(--accent); }
   header p { margin:0; color:var(--muted); font-size:14px; }
   .wrap { max-width:1080px; margin:0 auto; padding:20px 24px 60px; }
   .tabs { display:flex; gap:6px; margin:18px 0 16px; flex-wrap:wrap; }
@@ -25,13 +30,13 @@
            border-radius:10px; padding:18px; margin-bottom:18px; }
   label { display:block; font-size:12px; text-transform:uppercase;
           letter-spacing:.06em; color:var(--muted); margin:10px 0 4px; }
-  select, input[type=text] { width:100%; padding:9px 10px; background:#15120f;
+  select, input[type=text] { width:100%; padding:9px 10px; background:var(--deep);
           color:var(--ink); border:1px solid var(--line); border-radius:6px;
           font-size:15px; font-family:inherit; }
   .row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
   .chk { display:inline-flex; align-items:center; gap:6px; margin:8px 16px 0 0;
          color:var(--ink); font-size:14px; }
-  .result { margin-top:16px; padding:16px; background:#15120f;
+  .result { margin-top:16px; padding:16px; background:var(--deep);
             border:1px solid var(--line); border-radius:8px; }
   .glyph { font-size:64px; line-height:1; color:var(--accent); }
   .iast { font-size:24px; color:var(--ink); margin-top:4px; }
@@ -43,34 +48,34 @@
   th, td { border:1px solid var(--line); padding:6px 8px; text-align:left; }
   th { color:var(--muted); font-weight:600; font-size:12px; text-transform:uppercase; }
   .grid-cell { cursor:pointer; }
-  .grid-cell:hover { background:#2e271f; }
+  .grid-cell:hover { background:var(--hover); }
   .grid-cell .d { font-size:20px; color:var(--accent); }
   .grid-cell .i { color:var(--muted); font-size:12px; }
   .muted { color:var(--muted); } .ok { color:var(--ok); }
   .note { font-size:13px; color:var(--muted); margin-top:8px; }
   .hint { font-size:13px; color:var(--muted); }
-  h2 { color:var(--accent); font-size:18px; margin:4px 0 12px; }
+  h2 { font-family:'Cormorant Garamond', serif; font-weight:600; color:var(--accent); font-size:21px; margin:4px 0 12px; }
   .examples li { margin-bottom:6px; }
-  code { background:#15120f; padding:1px 5px; border-radius:4px; color:var(--accent); }
+  code { background:var(--deep); padding:1px 5px; border-radius:4px; color:var(--accent); }
   .st-controls { display:grid; grid-template-columns:2fr 1fr 1fr; gap:14px; align-items:end; }
   @media (max-width:640px){ .st-controls { grid-template-columns:1fr; } }
   .st-count { color:var(--muted); font-size:13px; margin:14px 0 4px; }
-  .st-card { background:#15120f; border:1px solid var(--line); border-radius:8px;
+  .st-card { background:var(--deep); border:1px solid var(--line); border-radius:8px;
              padding:14px 16px; margin-bottom:12px; }
   .st-head { display:flex; justify-content:space-between; gap:10px; align-items:baseline;
              flex-wrap:wrap; margin-bottom:6px; }
   .st-head b { color:var(--accent); font-size:17px; }
   .st-meta { margin-bottom:8px; font-size:13px; }
   .recipe-body { font-size:14.5px; line-height:1.6; }
-  .sxs { margin:10px 0 6px; padding:12px; background:#1d1813; border:1px solid var(--line);
+  .sxs { margin:10px 0 6px; padding:12px; background:var(--hover); border:1px solid var(--line);
          border-radius:8px; }
   .sxs-head { display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
   .sxs-label { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
   .sxs-strip { display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end; }
   .seg { display:flex; flex-direction:column; align-items:center; padding:6px 10px;
-         background:#15120f; border:1px solid var(--line); border-radius:8px; cursor:pointer;
+         background:var(--deep); border:1px solid var(--line); border-radius:8px; cursor:pointer;
          min-width:34px; transition:background .12s, border-color .12s; }
-  .seg:hover { background:#2e271f; border-color:var(--accent); }
+  .seg:hover { background:var(--hover); border-color:var(--accent); }
   .seg.bija { border-color:var(--accent2); }
   .seg.speaking { background:var(--accent); border-color:var(--accent); }
   .seg.speaking .seg-d, .seg.speaking .seg-i { color:var(--bg); }
@@ -88,7 +93,7 @@
   .sxs-caveat { font-size:11.5px; color:var(--muted); margin-top:8px; font-style:italic; }
   .pending { font-size:13px; color:var(--muted); font-style:italic; margin:8px 0 2px; }
   .audio-note { font-size:12px; color:var(--muted); margin:0 0 14px; padding:8px 12px;
-                background:#1d1813; border-left:3px solid var(--accent2); border-radius:4px; }
+                background:var(--hover); border-left:3px solid var(--accent2); border-radius:4px; }
 </style>
 </head>
 <body>
