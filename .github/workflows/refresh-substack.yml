@@ -1,6 +1,6 @@
 # Refresh the home page's "Latest writing" list from the Substack RSS feed.
 #
-# Runs every 6 hours (and on demand). Regenerates posts.json; commits only if
+# Runs weekly (Mon 05:00 AEST, see cron below) and on demand. Regenerates posts.json; commits only if
 # it actually changed, so there's no churn between new posts. GitHub Pages then
 # redeploys automatically on the commit.
 name: Refresh Substack posts
