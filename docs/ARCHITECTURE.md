@@ -39,6 +39,20 @@ This is the load-bearing architectural decision, so don't "consolidate" it away:
 
 Moving the bot frontends into this public repo would expose that gated content and bloat a Pages repo — so the bots stay private and deploy from their own repo. The two repos share only the **brand system** ([BRAND.md](BRAND.md)), copied into each, not a shared dependency.
 
+## Planned: the SHiP unified portal (not built yet)
+
+A future consolidation will fold **Tantrabytes + Monobytes** (and a planned Nietzsche /
+European-philosophy corpus) behind **one** selector-driven page at `ship.neildurrant.com`,
+backed by a single multi-corpus retrieval API. Today Tantrabytes and Monobytes already share
+one master vector index (corpus-tagged rows) and one backend that branches per corpus; what
+remains is merging the two frontends into one page with a corpus selector, consolidating to a
+single API, and ingesting Nietzsche.
+
+It stays on the **private** `sanskrit-tantra` side of the [public/private boundary](#publicprivate-boundary)
+— same as today's bots — because it serves the same gated reading editions; the home page links
+out to it but never embeds it. Until it ships, the three bots remain separate surfaces as tabled
+above. **Plan of record:** `sanskrit-tantra/ROADMAP.md` → "SHiP unified platform — one UI, three corpora".
+
 ## Conventions
 
 - **No build step.** Keep pages self-contained; prefer inline CSS/JS over adding tooling.
