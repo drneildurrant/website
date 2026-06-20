@@ -10,6 +10,7 @@
 | Mantrabytes (decoder) | `neildurrant.com/decoder/` | **this repo** | GitHub Pages |
 | Tantrabytes | `tantrabytes.neildurrant.com` | `drneildurrant/sanskrit-tantra` (private) | Azure Static Web Apps |
 | Monobytes | `monobytes.neildurrant.com` | `drneildurrant/sanskrit-tantra` (private) | Azure Static Web Apps |
+| SHiP (unified) | `ship.neildurrant.com` | `drneildurrant/sanskrit-tantra` (private) | Azure Static Web Apps |
 | Visualisations | `viz.neildurrant.com` | `drneildurrant/sanskrit-tantra` (private) | Azure Static Web Apps |
 | Substack | `substack.neildurrant.com` | — | External (Substack) |
 
@@ -39,19 +40,21 @@ This is the load-bearing architectural decision, so don't "consolidate" it away:
 
 Moving the bot frontends into this public repo would expose that gated content and bloat a Pages repo — so the bots stay private and deploy from their own repo. The two repos share only the **brand system** ([BRAND.md](BRAND.md)), copied into each, not a shared dependency.
 
-## Planned: the SHiP unified portal (not built yet)
+## The SHiP unified portal (Phase 1 live, 2026-06-20)
 
-A future consolidation will fold **Tantrabytes + Monobytes** (and a planned Nietzsche /
-European-philosophy corpus) behind **one** selector-driven page at `ship.neildurrant.com`,
-backed by a single multi-corpus retrieval API. Today Tantrabytes and Monobytes already share
-one master vector index (corpus-tagged rows) and one backend that branches per corpus; what
-remains is merging the two frontends into one page with a corpus selector, consolidating to a
-single API, and ingesting Nietzsche.
+`ship.neildurrant.com` folds **Tantrabytes + Monobytes** behind **one** selector-driven page
+(`ship.html`) over the shared master vector index (corpus-tagged rows) and the existing
+per-corpus backend. The corpus toggle swaps the whole profile (dropdown, retrieval filter,
+reader manifest, examples). A Nietzsche / European-philosophy corpus is the planned third tab.
 
 It stays on the **private** `sanskrit-tantra` side of the [public/private boundary](#publicprivate-boundary)
-— same as today's bots — because it serves the same gated reading editions; the home page links
-out to it but never embeds it. Until it ships, the three bots remain separate surfaces as tabled
-above. **Plan of record:** `sanskrit-tantra/ROADMAP.md` → "SHiP unified platform — one UI, three corpora".
+— same as the bots — because it serves the same gated reading editions; the home page links out
+to it but never embeds it. Tantrabytes and Monobytes remain live as their own surfaces for now;
+they're slated to retire behind SHiP once the consolidated backend lands.
+
+**Still to come (Phase 2+):** one unpinned `ship-api` (today the page reuses the monobytes API),
+retiring the legacy bot pages, and ingesting Nietzsche. **Plan of record:**
+`sanskrit-tantra/ROADMAP.md` → "SHiP unified platform — one UI, three corpora".
 
 ## Conventions
 
