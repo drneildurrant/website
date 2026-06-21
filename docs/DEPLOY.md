@@ -28,7 +28,17 @@ Hand-curated. Edit the `quotes` array — each entry is `{ "text": "...", "cite"
 
 ### Project cards ("What I'm building")
 
-In `index.html`, the `#work` grid. Each card:
+In `index.html`, the `#work` grid. Current cards (in order):
+
+| Card | Status | Link |
+|---|---|---|
+| Tantrabytes | Live | `tantrabytes.neildurrant.com` |
+| Mantrabytes | Live | `/decoder/` |
+| Monobytes | Live | `monobytes.neildurrant.com` |
+| Viz | Live | `viz.neildurrant.com` |
+| Eurobytes | Soon | — |
+
+Card patterns:
 - **Live** tool → `<a class="card pc" href="…">` with `<span class="badge">Live</span>` and a `<span class="card-cta">Enter →</span>`. The `pc` class adds the crimson top-edge signature.
 - **Coming** tool → `<div class="card soon">` with `<span class="badge dev">Soon</span>` and no link.
 - Keep live cards before "Soon" cards.
