@@ -44,7 +44,7 @@ Moving the bot frontends into this public repo would expose that gated content a
 
 > **Status: decided, not yet built.** Recorded here before work starts. No accounts, database, or app API exist today.
 
-The site is heading toward features a static host **cannot** serve: user accounts, a database (user info, annotations, notes), and integrations needing server-side secrets (e.g. mantra-chant generation via Suno). GitHub Pages is static-only — no server code, no database, no secrets — so these belong in a **dynamic tier**, not on Pages.
+The site is heading toward features a static host **cannot** serve: user accounts, a database (user info, annotations, notes), and — later — integrations that need server-side secrets. GitHub Pages is static-only — no server code, no database, no secrets — so these belong in a **dynamic tier**, not on Pages.
 
 **The decision: one shared identity across the whole ecosystem, consolidated on Azure.** Accounts are *not* standalone to the home page — a single login spans `neildurrant.com` and the `*.neildurrant.com` surfaces. Because the bots already run on Azure (Static Web Apps + the Container Apps backend), this **extends infrastructure we already operate** rather than adopting a new platform. (The alternative considered — Supabase, for a standalone, buildless-friendly account system — was ruled out by the shared-identity requirement: identity must not be split across two clouds when the bots live on Azure.)
 
@@ -56,14 +56,15 @@ The concrete payoff: **today's password gates become real accounts with per-user
 |---|---|---|
 | Identity (the spine) | **Microsoft Entra External ID** (CIAM) | One login across all apps; issues JWTs each app validates |
 | User data | **Azure Database for PostgreSQL** | Users, entitlements, annotations, notes; pgvector aligns with the existing vector index |
-| App API + Suno | **Azure Container Apps** (already running) | Reuses the bots' backend tier; handles Suno's async generation |
-| Generated audio | **Azure Blob Storage** | DB holds metadata + blob reference |
+| App API | **Azure Container Apps** (already running) | Reuses the bots' backend tier; serves the accounts / annotations API |
 | Home page | **stays on GitHub Pages** | Still the right buildless front door — don't move it |
+
+**Deferred — Suno mantra-chant audio.** Generating chant audio from Suno needs a server-side key plus **Azure Blob Storage** for the files. It's a later add-on once accounts land, not part of the initial tier.
 
 **Per surface:**
 - **`neildurrant.com` (this repo, Pages)** — stays static; becomes auth-aware *client-side* (redirect to Entra, hold the token, call the Azure API with it). Sensitive logic never lives in the home page's JS.
 - **Bots / SHiP (Azure SWA, private repo)** — swap the password gate for Entra token validation, so the same login unlocks the gated readings.
-- **New app tier** — accounts, annotations, notes, Suno live behind the Container Apps API (e.g. `app.neildurrant.com`). Being a **dynamic, user-data surface, it does NOT go in this public repo** — it lives on the private/Azure side, consistent with the [public/private boundary](#publicprivate-boundary).
+- **New app tier** — accounts, annotations and notes live behind the Container Apps API (e.g. `app.neildurrant.com`). Being a **dynamic, user-data surface, it does NOT go in this public repo** — it lives on the private/Azure side, consistent with the [public/private boundary](#publicprivate-boundary).
 
 ### Caveats
 1. **The apex on Pages can't do server-side sessions** (static — no httpOnly cookies). Home-page auth is redirect-and-token, not a server session; sensitive operations always happen on Azure. The day the home page itself needs server auth is the day it moves to Azure SWA too — not before.
@@ -76,7 +77,7 @@ The expensive-to-reverse piece is identity + the user schema, so do that first �
 1. Stand up **Entra External ID**; prove one login across two surfaces (home + one bot).
 2. Provision **Postgres**; model `users` (keyed by Entra subject ID), `entitlements`, and stub `annotations` / `notes`.
 3. Pilot the swap on the lowest-risk gate — the **`/training/` dashboard** (in this repo, fully under our control) — replacing its password with token validation end-to-end.
-4. Only then build features (annotations, Suno) against the spine.
+4. Only then build features (annotations, notes) against the spine.
 
 ## The SHiP unified portal (Phase 1 live, 2026-06-20)
 
