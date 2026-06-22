@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HM Training">
+<meta name="theme-color" content="#0d1117">
+<title>Half Marathon Training — Neil Durrant</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#1f2633;--border:#30363d;
+  --text:#e6edf3;--muted:#8b949e;
+  --orange:#ff6b35;--orange-dim:rgba(255,107,53,.15);
+  --green:#3fb950;--green-dim:rgba(63,185,80,.15);
+  --red:#f85149;--red-dim:rgba(248,81,73,.15);
+  --amber:#d29922;--amber-dim:rgba(210,153,34,.15);
+  --purple:#bc8cff;--purple-dim:rgba(188,140,255,.15);
+  --blue:#58a6ff;--blue-dim:rgba(88,166,255,.15);
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* HEADER */
+.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.hdr-left{display:flex;align-items:center;gap:12px}
+.hdr h1{font-size:17px;font-weight:700}
+.phase-pill{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.06em}
+.p1{background:var(--blue-dim);color:var(--blue)}
+.p2{background:var(--orange-dim);color:var(--orange)}
+.p3{background:var(--purple-dim);color:var(--purple)}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.txt-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;transition:all .15s}
+.txt-btn:hover{border-color:var(--orange);color:var(--text)}
+
+/* STATS BAR */
+.stats{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;gap:28px;overflow-x:auto}
+.stat{display:flex;flex-direction:column;flex-shrink:0}
+.sv{font-size:20px;font-weight:700;line-height:1.2}
+.sv.ora{color:var(--orange)}.sv.grn{color:var(--green)}.sv.amb{color:var(--amber)}
+.sl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.sdiv{width:1px;background:var(--border)}
+
+/* WEEK NAV */
+.wnav{padding:14px 24px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.wnav-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.wnav-btn:hover{border-color:var(--orange);color:var(--orange)}
+.wnav-btn:disabled{opacity:.3;cursor:not-allowed}
+.wnav-center{flex:1;text-align:center}
+.wnav-main{font-size:17px;font-weight:700}
+.wnav-sub{font-size:11px;color:var(--muted)}
+.week-pips{display:flex;gap:3px;margin-left:auto;flex-shrink:0}
+.pip{width:14px;height:4px;border-radius:2px;background:var(--border);cursor:pointer;transition:all .15s}
+.pip:hover{transform:scaleY(2)}
+.pip.done{background:var(--green)}
+.pip.cur{background:var(--orange);box-shadow:0 0 0 2px var(--orange-dim)}
+.pip.fut{background:var(--border)}
+
+/* WARNING BANNER */
+.warn-banner{margin:12px 24px 0;background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);border-radius:8px;padding:9px 14px;font-size:12px;color:#f97316;display:flex;align-items:center;gap:8px}
+.warn-banner.hidden{display:none}
+
+/* DAY GRID */
+.grid{padding:16px 24px;display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:580px){.grid{grid-template-columns:repeat(2,1fr)}}
+
+/* DAY CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:all .15s;min-height:150px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.card:hover{border-color:var(--muted);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.card.type-rest{opacity:.55;cursor:default}
+.card.type-rest:hover{transform:none;border-color:var(--border);box-shadow:none}
+.card.is-today{border-color:var(--orange);box-shadow:0 0 0 2px var(--orange-dim)}
+.card.s-completed{border-color:var(--green);background:var(--green-dim)}
+.card.s-skipped{border-color:var(--red);background:var(--red-dim);opacity:.7}
+.card.s-modified{border-color:var(--amber);background:var(--amber-dim)}
+.today-tag{position:absolute;top:8px;right:8px;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--orange);letter-spacing:.05em}
+.card-day{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+.card-date{font-size:10px;color:var(--muted);margin-bottom:4px;opacity:.7}
+.type-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;display:inline-block;margin-bottom:7px;text-transform:uppercase;letter-spacing:.05em}
+.tb-run{background:var(--orange-dim);color:var(--orange)}
+.tb-strength{background:var(--purple-dim);color:var(--purple)}
+.tb-rest{background:rgba(139,148,158,.1);color:var(--muted)}
+.card-label{font-size:12px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:4px}
+.card-desc{font-size:11px;color:var(--muted);line-height:1.4;flex:1}
+.card-foot{margin-top:8px;display:flex;align-items:center;justify-content:space-between}
+.risk-tag{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:2px 6px;border-radius:4px}
+.r-medium{background:rgba(210,153,34,.2);color:var(--amber)}
+.r-high{background:rgba(248,81,73,.2);color:var(--red)}
+.r-very-high{background:rgba(248,81,73,.35);color:#ff6b6b;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.status-dot{width:7px;height:7px;border-radius:50%}
+.dot-completed{background:var(--green)}
+.dot-skipped{background:var(--red)}
+.dot-modified{background:var(--amber)}
+.dot-pending{background:var(--border)}
+.card-logged{font-size:10px;color:var(--muted);margin-top:4px}
+
+/* PROGRESS CHART */
+.prog-section{padding:16px 24px 24px;border-top:1px solid var(--border)}
+.prog-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+.lrc{display:flex;align-items:flex-end;gap:5px;height:70px}
+.lrc-col{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;cursor:pointer;position:relative}
+.lrc-col:hover .lrc-bar{filter:brightness(1.2)}
+.lrc-bar{width:100%;border-radius:3px 3px 0 0;transition:height .4s ease;min-height:2px}
+.lrc-bar.done{background:var(--green)}
+.lrc-bar.cur{background:var(--orange)}
+.lrc-bar.cut{background:var(--border);opacity:.6}
+.lrc-bar.fut{background:var(--border)}
+.lrc-wk{font-size:8px;color:var(--muted);margin-top:3px}
+.lrc-km{font-size:8px;color:var(--muted);margin-bottom:2px}
+.lrc-tip{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:11px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;margin-bottom:4px;color:var(--text)}
+.lrc-col:hover .lrc-tip{opacity:1}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(3px)}
+.overlay.hidden{display:none}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;width:480px;max-width:95vw;max-height:88vh;overflow-y:auto;padding:22px}
+.modal-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px}
+.modal-title{font-size:16px;font-weight:700}
+.modal-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.mclose{background:none;border:none;color:var(--muted);cursor:pointer;font-size:22px;line-height:1;padding:0 2px;margin-top:-2px}
+.mclose:hover{color:var(--text)}
+
+.session-box{background:var(--surface2);border-radius:8px;padding:14px;margin-bottom:18px}
+.session-box-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.det-list{list-style:none}
+.det-list li{font-size:12px;color:var(--muted);padding:3px 0 3px 16px;position:relative;line-height:1.4}
+.det-list li::before{content:'→';position:absolute;left:0;color:var(--orange);font-size:10px;top:4px}
+
+.msec{margin-bottom:18px}
+.msec-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
+
+.sbuts{display:flex;gap:8px}
+.sbut{flex:1;padding:9px 6px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.sbut:hover{border-color:var(--muted);color:var(--text)}
+.sbut.active.done{border-color:var(--green);background:var(--green-dim);color:var(--green)}
+.sbut.active.skip{border-color:var(--red);background:var(--red-dim);color:var(--red)}
+.sbut.active.mod{border-color:var(--amber);background:var(--amber-dim);color:var(--amber)}
+
+.run-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.finput{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:14px;width:100%;transition:border .15s}
+.finput:focus{outline:none;border-color:var(--orange)}
+
+.ach-scale{display:flex;gap:6px}
+.ach-btn{flex:1;aspect-ratio:1;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:15px;font-weight:700;transition:all .15s}
+.ach-btn:hover{border-color:var(--muted);color:var(--text)}
+.ach-btn.act.a1{border-color:#3fb950;background:rgba(63,185,80,.2);color:#3fb950}
+.ach-btn.act.a2{border-color:#7ee787;background:rgba(126,231,135,.15);color:#7ee787}
+.ach-btn.act.a3{border-color:var(--amber);background:var(--amber-dim);color:var(--amber)}
+.ach-btn.act.a4{border-color:#f97316;background:rgba(249,115,22,.2);color:#f97316}
+.ach-btn.act.a5{border-color:var(--red);background:var(--red-dim);color:var(--red)}
+.ach-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-top:3px}
+
+.ntarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px;color:var(--text);font-size:12px;resize:vertical;min-height:72px;font-family:inherit;transition:border .15s}
+.ntarea:focus{outline:none;border-color:var(--orange)}
+
+.mactions{display:flex;gap:8px;margin-top:20px}
+.btn-pri{flex:1;background:var(--orange);border:none;color:#fff;padding:11px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.btn-pri:hover{opacity:.88}
+.btn-sec{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:11px 18px;border-radius:8px;font-size:13px;cursor:pointer;transition:all .15s}
+.btn-sec:hover{color:var(--text);border-color:var(--muted)}
+
+/* SETUP */
+.setup-modal{text-align:center;max-width:360px}
+.setup-icon{font-size:44px;margin-bottom:14px}
+.setup-title{font-size:20px;font-weight:700;margin-bottom:8px}
+.setup-desc{color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.6}
+.setup-finput{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-size:15px;margin-bottom:14px;text-align:center;transition:border .15s}
+.setup-finput:focus{outline:none;border-color:var(--orange)}
+.setup-hint{font-size:11px;color:var(--muted);margin-bottom:18px;line-height:1.5}
+
+/* GATE */
+.gate-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:200;padding-top:env(safe-area-inset-top)}
+.gate-overlay.hidden{display:none}
+.gate-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px;width:320px;max-width:90vw;text-align:center}
+.gate-icon{font-size:36px;margin-bottom:14px}
+.gate-title{font-size:18px;font-weight:700;margin-bottom:6px}
+.gate-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
+.gate-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-size:16px;text-align:center;margin-bottom:10px;transition:border .15s}
+.gate-input:focus{outline:none;border-color:var(--orange)}
+.gate-err{font-size:11px;color:var(--red);margin-bottom:10px;min-height:16px}
+/* Safe area for iPhone notch / Dynamic Island */
+@supports(padding-top: env(safe-area-inset-top)){
+  .hdr{padding-top:calc(14px + env(safe-area-inset-top))}
+}
+</style>
+</head>
+<body>
+
+<div class="gate-overlay" id="gate-overlay">
+  <div class="gate-box">
+    <div class="gate-icon">🏃</div>
+    <div class="gate-title">Neil's Training</div>
+    <div class="gate-sub">Personal training dashboard</div>
+    <input class="gate-input" type="password" id="gate-input" placeholder="Password" autocomplete="current-password">
+    <div class="gate-err" id="gate-err"></div>
+    <button class="btn-pri" id="gate-btn" style="width:100%">Enter →</button>
+  </div>
+</div>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <h1>🏃 Half Marathon Training</h1>
+    <span class="phase-pill p1" id="hdr-phase">Phase 1</span>
+  </div>
+  <div class="hdr-right">
+    <button class="txt-btn" id="btn-jump-today">Today</button>
+    <button class="txt-btn" id="btn-change-date" style="font-size:11px">⚙ Change Start Date</button>
+  </div>
+</div>
+
+<div class="stats" id="stats-bar">
+  <div class="stat"><div class="sv ora" id="s-week">—</div><div class="sl">Current Week</div></div>
+  <div class="sdiv"></div>
+  <div class="stat"><div class="sv" id="s-phase">—</div><div class="sl">Phase</div></div>
+  <div class="sdiv"></div>
+  <div class="stat"><div class="sv grn" id="s-done">0</div><div class="sl">Sessions Done</div></div>
+  <div class="sdiv"></div>
+  <div class="stat"><div class="sv" id="s-pct">0%</div><div class="sl">Completion</div></div>
+  <div class="sdiv"></div>
+  <div class="stat"><div class="sv amb" id="s-longrun">—</div><div class="sl">Longest Run</div></div>
+  <div class="sdiv"></div>
+  <div class="stat"><div class="sv" id="s-total-km">0 km</div><div class="sl">Total Km Logged</div></div>
+  <div class="sdiv"></div>
+  <div class="stat"><div class="sv" id="s-achilles">—</div><div class="sl">Last Achilles</div></div>
+</div>
+
+<div class="wnav">
+  <button class="wnav-btn" id="prev-wk">‹</button>
+  <div class="wnav-center">
+    <div class="wnav-main" id="wk-label">Week 1 of 16</div>
+    <div class="wnav-sub" id="wk-sub">Phase 1: Foundation · Build Achilles resilience and running base</div>
+  </div>
+  <div class="week-pips" id="week-pips"></div>
+  <button class="wnav-btn" id="next-wk">›</button>
+</div>
+
+<div class="warn-banner hidden" id="warn-banner">
+  ⚠ <span id="warn-text"></span>
+</div>
+
+<div class="grid" id="day-grid"></div>
+
+<div class="prog-section">
+  <div class="prog-title">Long Run Progression (Sunday km targets)</div>
+  <div class="lrc" id="lrc"></div>
+</div>
+
+<!-- Log modal -->
+<div class="overlay hidden" id="log-overlay">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div>
+        <div class="modal-title" id="m-title">Session</div>
+        <div class="modal-sub" id="m-sub"></div>
+      </div>
+      <button class="mclose" id="m-close">×</button>
+    </div>
+
+    <div class="session-box">
+      <div class="session-box-label" id="m-session-label">What to do</div>
+      <ul class="det-list" id="m-details"></ul>
+    </div>
+
+    <div class="msec">
+      <div class="msec-title">How did it go?</div>
+      <div class="sbuts">
+        <button class="sbut done" id="sbut-done">✓ Done</button>
+        <button class="sbut mod" id="sbut-mod">≈ Modified</button>
+        <button class="sbut skip" id="sbut-skip">✕ Skipped</button>
+      </div>
+    </div>
+
+    <div id="run-log-section" class="msec hidden">
+      <div class="msec-title">Run details</div>
+      <div class="run-grid">
+        <div class="fg"><label>Actual km</label><input class="finput" type="number" step="0.1" id="log-km" placeholder="e.g. 5.2"></div>
+        <div class="fg"><label>Time (mm:ss or h:mm:ss)</label><input class="finput" type="text" id="log-time" placeholder="e.g. 28:30"></div>
+        <div class="fg"><label>Target km</label><input class="finput" type="text" id="log-target-km" readonly style="opacity:.5"></div>
+        <div class="fg"><label>Avg pace / km</label><input class="finput" type="text" id="log-pace" placeholder="calculated" readonly style="opacity:.5"></div>
+      </div>
+    </div>
+
+    <div id="achilles-section" class="msec">
+      <div class="msec-title">Left chain feel (Achilles/calf/glute/hip) — 1 great → 5 pain</div>
+      <div class="ach-scale">
+        <button class="ach-btn a1" data-v="1">1</button>
+        <button class="ach-btn a2" data-v="2">2</button>
+        <button class="ach-btn a3" data-v="3">3</button>
+        <button class="ach-btn a4" data-v="4">4</button>
+        <button class="ach-btn a5" data-v="5">5</button>
+      </div>
+      <div class="ach-labels"><span>All good</span><span>Some discomfort</span><span>Pain — rest!</span></div>
+    </div>
+
+    <div class="msec">
+      <div class="msec-title">Notes</div>
+      <textarea class="ntarea" id="log-notes" placeholder="How did it feel? Anything to note..."></textarea>
+    </div>
+
+    <div class="mactions">
+      <button class="btn-sec" id="m-clear">Clear log</button>
+      <button class="btn-pri" id="m-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Setup modal -->
+<div class="overlay" id="setup-overlay">
+  <div class="modal setup-modal">
+    <div class="setup-icon">🏃</div>
+    <div class="setup-title">Welcome, Neil!</div>
+    <div class="setup-desc">Your 16-week half marathon training plan is ready. Set the date you want Week 1 to start — you can always change it later.</div>
+    <input class="setup-finput" type="date" id="setup-date">
+    <div class="setup-hint">💡 Tip: If you want to start this coming Monday, pick that date. The plan runs Tue–Sun with Monday as rest.</div>
+    <button class="btn-pri" id="setup-go" style="width:100%">Start Training →</button>
+  </div>
+</div>
+
+<script>
+// ─── GATE ────────────────────────────────────────────────────────────────────
+// To set your password, run this in the browser console and copy the output:
+//   crypto.subtle.digest('SHA-256',new TextEncoder().encode('yourpassword'))
+//     .then(b=>console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')))
+// Then replace GATE_HASH with the result.
+const GATE_HASH = 'REPLACE_WITH_SHA256_HASH';
+const GATE_KEY  = 'neil_hm_auth';
+
+async function hashStr(s) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2,'0')).join('');
+}
+
+function isAuthed() {
+  return GATE_HASH.startsWith('REPLACE') || localStorage.getItem(GATE_KEY) === GATE_HASH;
+}
+
+function initApp() {
+  loadState();
+  if (state.startDate) {
+    document.getElementById('setup-overlay').classList.add('hidden');
+    viewWeek = getCurrentWeek();
+  }
+  render();
+}
+
+async function handleGateSubmit() {
+  const val = document.getElementById('gate-input').value;
+  if (!val) return;
+  const h = await hashStr(val);
+  if (h === GATE_HASH) {
+    localStorage.setItem(GATE_KEY, GATE_HASH);
+    document.getElementById('gate-overlay').classList.add('hidden');
+    initApp();
+  } else {
+    const err = document.getElementById('gate-err');
+    err.textContent = 'Incorrect password';
+    document.getElementById('gate-input').value = '';
+    document.getElementById('gate-input').focus();
+    setTimeout(() => { err.textContent = ''; }, 2000);
+  }
+}
+
+document.getElementById('gate-btn').onclick = handleGateSubmit;
+document.getElementById('gate-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleGateSubmit();
+});
+
+// ─── PLAN DATA ────────────────────────────────────────────────────────────────
+// Each week: { num, phase, phaseName, theme, note, warn, sessions[7] }
+// Sessions[0]=Mon ... [6]=Sun
+// Session: { type, label, desc, details, km, risk }
+// type: 'rest' | 'run' | 'strength'
+// risk: null | 'medium' | 'high' | 'very-high'
+
+const LOW_STRENGTH = [
+  'Slow calf raises 3×15 (3s up, 3s down — eccentric is key)',
+  'Single-leg calf raises 3×10 each side',
+  'Glute bridges 3×15',
+  'Clamshells 3×15 each side',
+  'Hip flexor stretch 2×45s each side',
+  'Foam roll: calves 2 min each, glutes 1 min each, IT band 1 min'
+];
+const LO_LIGHT = [
+  'Slow calf raises 2×12 (lighter than Wed)',
+  'Single-leg calf raises 2×8 each side',
+  'Hip abductor 2×15 each side',
+  'Dead bugs 2×10',
+  'Hip flexor stretch 2×45s each side',
+  'Foam roll: focus on left Achilles and calf'
+];
+const UP_STR = [
+  'Upper body push/pull (push-ups, rows, shoulder press)',
+  'Core: plank 3×40s, dead bugs 3×10',
+  'Thorough foam roll: calves, quads, glutes, thoracic spine',
+  'Left Achilles: gentle circular massage 2 min'
+];
+
+const R = (label,desc,km,risk,details) => ({type:'run',label,desc,km,risk,details:details||[]});
+const S = (label,type2,details) => ({type:'strength',subtype:type2,label,desc:'',details:details||[]});
+const X = (label,details) => ({type:'rest',label,details:details||[]});
+
+const PLAN = [
+  // ── PHASE 1: FOUNDATION (Weeks 1–6) ──────────────────────────────────────
+  { num:1, phase:1, phaseName:'Foundation', theme:'Build Achilles resilience and running base', warn:null,
+    sessions:[
+      X('Rest — Day Off'),
+      R('Easy Run — 5 km','Conversational pace (~6:15/km). No pushing. Stop immediately if Achilles twinges.',5,null,['5 min warm-up walk','5 km at truly easy pace — can hold a full conversation','5 min cool-down walk','Foam roll immediately: calves 2 min each, glutes 1 min each']),
+      S('Lower Strength','lower',LOW_STRENGTH),
+      X('Rest / Easy Walk',['Optional: 20–30 min easy walk at very relaxed pace','Foam roll if calves or Achilles feel tight']),
+      X('Rest — Day Off',['Full rest. If very keen: gentle foam roll only.']),
+      S('Upper Strength + Foam Roll','upper',UP_STR),
+      R('Easy Long Run — 6 km','Easy effort (~6:00–6:15/km). This is not a race. Stop if Achilles twinges.',6,null,['5 min warm-up walk','6 km easy — slow and steady','5 min cool-down walk','Foam roll immediately — prioritise left calf and Achilles']),
+    ]
+  },
+  { num:2, phase:1, phaseName:'Foundation', theme:'Build Achilles resilience and running base', warn:null,
+    sessions:[
+      X('Rest — Day Off'),
+      R('Easy Run + Strides — 5 km','Easy run then 4×20s strides at the end (controlled speed, not flat out).',5.5,null,['5 min warm-up walk','5 km easy pace','4×20s strides with 60s easy jog recovery (do these on flat ground)','5 min cool-down walk','Foam roll: calves, IT band, glutes']),
+      S('Lower Strength','lower',LOW_STRENGTH),
+      X('Rest / Easy Walk',['Optional: 20–30 min easy walk','Foam roll left chain if tight']),
+      X('Rest — Day Off'),
+      S('Upper Strength + Foam Roll','upper',UP_STR),
+      R('Easy Long Run — 7 km','Easy effort. This week\'s long run adds 1 km. Keep it honest — easy means easy.',7,null,['5 min warm-up walk','7 km at easy conversational pace','5 min cool-down walk','Foam roll immediately — left Achilles priority']),
+    ]
+  },
+  { num:3, phase:1, phaseName:'Foundation', theme:'Build Achilles resilience and running base', warn:null,
+    sessions:[
+      X('Rest — Day Off'),
+      R('Easy Run + Strides — 6 km','Building up a km. 4×30s strides at end.',6.5,null,['5 min warm-up walk','6 km easy pace','4×30s strides with 90s easy jog recovery','5 min cool-down walk','Foam roll: calves, glutes, IT band']),
+      S('Lower Strength','lower',LOW_STRENGTH),
+      X('Rest / Easy Walk',['Optional walk or full rest','Foam roll left chain']),
+      X('Rest — Day Off'),
+      S('Upper Strength + Foam Roll','upper',UP_STR),
+      R('Easy Long Run — 8 km','First time at 8 km. Keep effort very easy.',8,'medium',['5 min warm-up walk','8 km easy — if you feel good, resist going faster','5 min cool-down walk','Foam roll immediately — full lower body']),
+    ]
+  },
+  { num:4, phase:1, phaseName:'Foundation', theme:'CUTBACK WEEK — let the body absorb the work', warn:'Cutback week — pull back effort and distance. This is when adaptation happens. Don\'t skip the easy.',
+    sessions:[
+      X('Rest — Day Off'),
+      R('Easy Run — 5 km (Cutback)','Cutback week. No strides. Easy only.',5,null,['5 min warm-up walk','5 km very easy — this should feel almost too easy','5 min cool-down walk','Foam roll']),
+      S('Lower Strength (Lighter)','lower',[...LOW_STRENGTH.map((d,i)=>i<2?d.replace('3×','2×').replace('3×','2×'):d)]),
+      X('Rest — Day Off',['Full rest this week — it\'s a cutback']),
+      X('Rest — Day Off'),
+      S('Upper Strength (Lighter) + Foam Roll','upper',UP_STR),
+      R('Easy Run — 6 km (Cutback)','Reduced long run for cutback week.',6,null,['5 min warm-up walk','6 km easy','5 min cool-down walk','Thorough foam roll']),
+    ]
+  },
+  { num:5, phase:1, phaseName:'Foundation', theme:'Build Achilles resilience and running base', warn:null,
+    sessions:[
+      X('Rest — Day Off'),
+      R('Easy Run + Strides — 6 km','5×30s strides today. Notice how legs are responding after cutback.',6.5,null,['5 min warm-up walk','6 km easy pace','5×30s strides with 90s easy jog recovery','5 min cool-down walk','Foam roll: full lower body']),
+      S('Lower Strength','lower',LOW_STRENGTH),
+      X('Rest / Easy Walk',['Optional 20–30 min walk','Foam roll if needed']),
+      X('Rest — Day Off'),
+      S('Upper Strength + Foam Roll','upper',UP_STR),
+      R('Easy Long Run — 9 km','Almost double digits. Keep the effort honest.',9,'medium',['5 min warm-up walk','9 km easy — you\'re building something real now','5 min cool-down walk','Foam roll immediately — spend extra time on left Achilles']),
+    ]
+  },
+  { num:6, phase:1, phaseName:'Foundation', theme:'Build Achilles resilience and running base — first 10 km!', warn:null,
+    sessions:[
+      X('Rest — Day Off'),
+      R('Easy Run + Strides — 7 km','6×30s strides. You\'ve built your base well.',7.5,null,['5 min warm-up walk','7 km easy pace','6×30s strides with 90s easy jog recovery','5 min cool-down walk','Foam roll']),
+      S('Lower Strength','lower',LOW_STRENGTH),
+      X('Rest / Easy Walk',['Optional walk','Foam roll']),
+      X('Rest — Day Off'),
+      S('Upper Strength + Foam Roll','upper',UP_STR),
+      R('Long Run — 10 km 🎯','First 10 km! This is a real milestone. Stay easy — you\'ve got plenty more weeks ahead.',10,'medium',['5 min warm-up walk','10 km easy — celebrate quietly at 5 km turnaround','5 min cool-down walk','Foam roll thoroughly — full 10+ minutes lower body']),
+    ]
+  },
+
+  // ── PHASE 2: BUILD (Weeks 7–12) ───────────────────────────────────────────
+  { num:7, phase:2, phaseName:'Build', theme:'Add hills and speed. Three runs per week begins.', warn:'New this week: Thursday lower strength + Friday hills. Monitor left chain carefully — this is the biggest jump in load.',
+    sessions:[
+      X('Rest — Day Off'),
+      R('Tempo Intervals — ~6 km','2×8 min at ~5:30/km with 2 min jog recovery between. First speed session.',6,'medium',['10 min warm-up jog at very easy pace','2×8 min at comfortably hard pace (~5:30/km) — you should be able to say 3-4 words, not more','2 min easy jog between reps','10 min cool-down jog','Foam roll: calves, quads, glutes']),
+      S('Lower Strength','lower',LOW_STRENGTH),
+      S('Lower Strength (Recovery Focus)','lower',LO_LIGHT),
+      R('Hills Run — 5 km','First hills session. Easy effort on the uphills — this is harder on the calves than it looks.',5,'medium',['5 min warm-up walk/jog','5 km hilly route — easy effort throughout','Walk the uphills if Achilles feels any strain','5 min cool-down walk','Foam roll immediately — extra time on calves and left Achilles']),
+      S('Upper Strength + Foam Roll','upper',UP_STR),
+      R('Long Run — 10 km','Consolidating 10 km before we push further next week.',10,'medium',['5 min warm-up walk','10 km easy — hold back if tired from the week','5 min cool-down walk','Foam roll']),
+    ]
+  },
+  { num:8, phase:2, phaseName:'Build', theme:'Track work introduced. Long run extends.', warn:null,
+    sessions:[
+      X('Rest — Day Off'),
+      R('Track — 4×800 m','4×800 m at ~5:00/km with 90s standing recovery. Keep pace honest, not flat out.',6,'medium',['10 min warm-up jog','4×800 m at ~5:00/km — controlled, not racing','90s standing/walking recovery between reps','10 min cool-down jog','Foam roll']),
+      S('Lower Strength','lower',LOW_STRENGTH),
+      S('Lower Strength (Recovery Focus)','lower',LO_LIGHT),
+      R('Hills Run — 6 km','Adding 1 km to hills. Still easy effort.',6,'medium',['5 min warm-up','6 km hilly route at easy effort','Cool-down walk','Foam roll — prioritise left calf']),
+      S('Upper Strength + Foam Roll','upper',UP_STR),
+      R('Long Run — 12 km','A jump up. Keep it easy.',12,'medium',['5 min warm-up walk','12 km easy pace','5 min cool-down walk','Foam roll thoroughly — 10+ minutes']),
+    ]
+  },
+  { num:9, phase:2, phaseName:'Build', theme:'Load increases. Monitor left chain closely.', warn:'Higher load week. If left chain (Achilles/calf/glute) feels strained at any point, cut the session short. Log it.',
+    sessions:[
+      X('Rest — Day Off'),
+      R('Tempo — 2×10 min','2×10 min at ~5:20/km. Harder than week 7. Controlled.',7,'medium',['10 min warm-up jog','2×10 min at ~5:20/km (comfortably hard)','90s easy jog between reps','10 min cool-down jog','Foam roll']),
+      S('Lower Strength','lower',LOW_STRENGTH),
+      S('Lower Strength (Recovery Focus)','lower',LO_LIGHT),
+      R('Hills Run — 6 km','Consistent hills. You\'re adapting.',6,'medium',['5 min warm-up','6 km hilly route','Cool-down walk','Foam roll']),
+      S('Upper Strength + Foam Roll','upper',UP_STR),
+      R('Long Run — 13 km','Pushing toward 15 km territory. Big psychological step.',13,'high',['5 min warm-up walk','13 km easy — if you feel great at 10 km, stay disciplined','5 min cool-down walk','Foam roll — full 10+ minutes. Left Achilles priority.']),
+    ]
+  },
+  { num:10, phase:2, phaseName:'Build', theme:'CUTBACK WEEK — recover and absorb.', warn:'Cutback week. This is essential — your Achilles needs this after weeks 7–9. Don\'t skip the easy.',
+    sessions:[
+      X('Rest — Day Off'),
+      R('Easy Run + Strides — 6 km','Cutback week. Easy run, a few strides at the end.',6,null,['5 min warm-up walk','6 km easy pace','4×20s strides','5 min cool-down walk','Foam roll']),
+      S('Lower Strength (Lighter)','lower',LO_LIGHT),
+      X('Rest — Day Off',['Full rest. Left chain needs this.']),
+      R('Easy Flat Run — 5 km','No hills this cutback week.',5,null,['5 min warm-up walk','5 km easy flat run','5 min cool-down walk','Foam roll — thorough lower body session']),
+      S('Upper Strength + Foam Roll','upper',UP_STR),
+      R('Long Run — 10 km (Cutback)','Back to 10 km for recovery.',10,null,['5 min warm-up walk','10 km easy — this should feel comfortable by now','5 min cool-down walk','Foam roll']),
+    ]
+  },
+  { num:11, phase:2, phaseName:'Build', theme:'Big week. Biggest long run to date.', warn:'High load week. Pay close attention to left Achilles on Sunday — 15 km is new territory since 2021. Back off at any twinge.',
+    sessions:[
+      X('Rest — Day Off'),
+      R('Track — 5×800 m','Adding a rep from week 8. 5×800 m at ~5:00/km.',7,'high',['10 min warm-up jog','5×800 m at ~5:00/km','90s standing recovery between reps','10 min cool-down jog','Foam roll']),
+      S('Lower Strength','lower',LOW_STRENGTH),
+      S('Lower Strength (Recovery Focus)','lower',LO_LIGHT),
+      R('Hills Run — 7 km','Hills extending.',7,'high',['5 min warm-up','7 km hilly route at easy effort','Cool-down walk','Foam roll — extra time left Achilles']),
+      S('Upper Strength + Foam Roll','upper',UP_STR),
+      R('Long Run — 15 km ⚡','Biggest run since 2021. Take it very easy.',15,'high',['5 min warm-up walk','15 km easy — hold back especially in first half','Bring water and gels/dates','5 min cool-down walk','Foam roll immediately — 10+ minutes. Left Achilles priority.']),
+    ]
+  },
+  { num:12, phase:2, phaseName:'Build', theme:'Peak build week before Phase 3.', warn:'High load week — biggest training week of Phase 2. Wednesday lower strength is critical this week. Don\'t skip it.',
+    sessions:[
+      X('Rest — Day Off'),
+      R('Tempo — 3×8 min','Three reps now. Getting race-ready.',8,'high',['10 min warm-up jog','3×8 min at ~5:15/km','90s easy jog between reps','10 min cool-down jog','Foam roll']),
+      S('Lower Strength','lower',LOW_STRENGTH),
+      S('Lower Strength (Recovery Focus)','lower',LO_LIGHT),
+      R('Hills Run — 8 km','Longest hills run. Respect the effort.',8,'high',['5 min warm-up','8 km hilly route at easy effort','Cool-down walk','Foam roll immediately after']),
+      S('Upper Strength + Foam Roll','upper',UP_STR),
+      R('Long Run — 17 km ⚡','Getting serious. This is 80% of race distance.',17,'high',['5 min warm-up walk','17 km easy — genuine long run pacing now','Carry hydration and fuel (gel at ~10 km)','5 min cool-down walk','Foam roll — full 15 minutes. Every inch of left chain.']),
+    ]
+  },
+
+  // ── PHASE 3: PEAK & TAPER (Weeks 13–16) ──────────────────────────────────
+  { num:13, phase:3, phaseName:'Peak & Taper', theme:'Biggest week. Long run into the unknown.', warn:'⚡ Very high load this week — especially Sunday\'s 19 km. This is the hardest week of the plan. Nail the foam rolling. If Achilles rates 4+ on any day, skip the next session.',
+    sessions:[
+      X('Rest — Day Off'),
+      R('Track — 4×1 km','Longer intervals now. 4×1 km at ~4:55/km.',8,'high',['10 min warm-up jog','4×1 km at ~4:55/km (this is fast — controlled race effort)','2 min standing recovery between reps','10 min cool-down jog','Foam roll']),
+      S('Lower Strength','lower',LOW_STRENGTH),
+      S('Lower Strength (Recovery Focus)','lower',LO_LIGHT),
+      R('Hills Run — 8 km','Maintaining hills strength.',8,'high',['5 min warm-up','8 km hilly route at easy effort','Cool-down walk','Foam roll immediately']),
+      S('Upper Strength + Foam Roll','upper',UP_STR),
+      R('Long Run — 19 km ⚡','Almost there. The furthest you\'ve run since 2021.',19,'very-high',['5 min warm-up walk','19 km easy — race day pace is irrelevant today, just finish','Carry hydration + 2 gels (at 8 km and 14 km)','5 min cool-down walk','Foam roll — 15 minutes. Ice bath or cold shower for legs if possible.']),
+    ]
+  },
+  { num:14, phase:3, phaseName:'Peak & Taper', theme:'PEAK WEEK. The 21 km is here.', warn:'⚡ Peak week. Sunday is your first 21 km since 2019. Be conservative — the goal is to finish strong and injury-free. Taper begins next week.',
+    sessions:[
+      X('Rest — Day Off'),
+      R('Tempo — 2×12 min','Quality tempo work before peak week.',8,'high',['10 min warm-up jog','2×12 min at ~5:15/km (goal half marathon pace)','90s easy jog between reps','10 min cool-down jog','Foam roll']),
+      S('Lower Strength','lower',LOW_STRENGTH),
+      S('Lower Strength (Recovery Focus)','lower',LO_LIGHT),
+      R('Hills Run — 7 km (Reducing)','Slight reduction to preserve legs for Sunday.',7,'high',['5 min warm-up','7 km hilly route — pull back slightly from previous weeks','Cool-down walk','Foam roll immediately — prioritise left chain']),
+      S('Upper Strength + Foam Roll','upper',UP_STR),
+      R('Peak Run — 21 km 🏆','First 21 km since March 2019. First 16 km easy, last 5 km at goal half marathon pace (~5:30–5:45/km). This is the moment.',21,'very-high',['5 min warm-up walk','km 1–16 at easy pace','km 16–21 at goal half marathon pace if feeling good','Carry hydration + 2-3 gels','5 min cool-down walk','Foam roll — 20 minutes. This is non-negotiable.']),
+    ]
+  },
+  { num:15, phase:3, phaseName:'Peak & Taper', theme:'TAPER. Trust the work. Let the legs recover.', warn:null,
+    sessions:[
+      X('Rest — Day Off'),
+      R('Track — 3×800 m (Light)','Reduced track work. Keep the pace, reduce the volume.',5,'medium',['10 min warm-up jog','3×800 m at ~5:00/km (reduced from peak)','90s recovery between reps','10 min cool-down jog','Foam roll']),
+      S('Lower Strength (Lighter)','lower',LO_LIGHT),
+      X('Rest — Day Off',['Full rest. You\'ve done the work. Trust it.']),
+      R('Easy Hills — 5 km','Gentle hills to maintain sharpness. Easy effort.',5,'medium',['5 min warm-up jog','5 km hilly route at easy effort — no pushing','Cool-down walk','Foam roll']),
+      S('Upper Strength (Light) + Foam Roll','upper',UP_STR),
+      R('Long Run — 14 km (Taper)','Cut back from 21 km. You\'ll feel strong — that\'s the taper working.',14,'medium',['5 min warm-up walk','14 km easy — legs should feel surprisingly good','5 min cool-down walk','Foam roll']),
+    ]
+  },
+  { num:16, phase:3, phaseName:'Peak & Taper', theme:'RACE WEEK. Stay loose. Trust everything.', warn:null,
+    sessions:[
+      X('Rest — Day Off'),
+      R('Easy Run + Strides — 5 km','Shaking the legs out. Very easy.',5,null,['5 min warm-up walk','5 km very easy — this should feel almost too slow','4×20s strides at end','5 min cool-down walk','Foam roll']),
+      {type:'strength',subtype:'mobility',label:'Mobility + Light Strength',desc:'Very easy session. Stay loose.',details:['Very light calf raises 2×10','Hip flexor stretch 3×45s each side','Glute activation work','Foam roll: full lower body — gentle']},
+      X('Rest + Foam Roll',['Full rest','Thorough foam roll session — 20 minutes lower body','Eat well, hydrate, sleep early']),
+      R('Shakeout Run — 3 km','Very easy. Just keeping the legs moving.',3,null,['3 km very easy pace — no harder','Don\'t check pace, just jog','Foam roll after']),
+      X('REST — Race Eve',['Full rest — no running','Foam roll: calves, glutes, IT band (gentle)','Prep kit, hydrate, carb-load dinner','Sleep early — 8+ hours']),
+      R('🏁 RACE DAY — 21.1 km','You\'ve done the work. Now run.',21.1,null,['Warm up 10 min easy jog + strides','First 3 km at slightly easier than goal pace','Settle into goal pace (aim ~5:30–5:45/km based on training)','Save something for last 3 km','Celebrate! 🎉']),
+    ]
+  },
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let state = { startDate: null, logs: {} };
+let viewWeek = 1;
+let modal = { weekNum: null, dayIdx: null };
+let modalStatus = null, modalAchilles = null;
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('neil_hm_plan');
+    if (s) state = JSON.parse(s);
+  } catch(e) {}
+}
+function saveState() {
+  try { localStorage.setItem('neil_hm_plan', JSON.stringify(state)); } catch(e) {}
+}
+
+// ─── DATE HELPERS ─────────────────────────────────────────────────────────────
+function parseDate(str) { return str ? new Date(str + 'T00:00:00') : null; }
+function toISO(d) { return d.toISOString().slice(0,10); }
+
+function getWeekDates(weekNum) {
+  if (!state.startDate) return Array(7).fill(null);
+  const start = parseDate(state.startDate);
+  const weekStart = new Date(start);
+  weekStart.setDate(start.getDate() + (weekNum-1)*7);
+  return Array.from({length:7}, (_,i) => {
+    const d = new Date(weekStart);
+    d.setDate(weekStart.getDate() + i);
+    return d;
+  });
+}
+
+function getCurrentWeek() {
+  if (!state.startDate) return 1;
+  const start = parseDate(state.startDate);
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const diff = Math.floor((today - start) / 86400000);
+  if (diff < 0) return 1;
+  return Math.min(Math.floor(diff/7)+1, 16);
+}
+
+function isToday(d) {
+  if (!d) return false;
+  const today = new Date();
+  return d.getDate()===today.getDate() && d.getMonth()===today.getMonth() && d.getFullYear()===today.getFullYear();
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  return d.toLocaleDateString('en-AU', {day:'numeric',month:'short'});
+}
+
+// ─── LOG HELPERS ─────────────────────────────────────────────────────────────
+function logKey(w, d) { return `${w}-${d}`; }
+function getLog(w, d) { return state.logs[logKey(w,d)] || null; }
+function setLog(w, d, data) { state.logs[logKey(w,d)] = data; saveState(); }
+function clearLog(w, d) { delete state.logs[logKey(w,d)]; saveState(); }
+
+// ─── STATS ────────────────────────────────────────────────────────────────────
+function computeStats() {
+  let done=0, total=0, totalKm=0, longestRun=0, lastAchilles=null;
+  let achFound=false;
+  for (let w=1; w<=16; w++) {
+    const wk = PLAN[w-1];
+    wk.sessions.forEach((s,d) => {
+      if (s.type !== 'rest') {
+        total++;
+        const log = getLog(w,d);
+        if (log && log.status) {
+          done++;
+          if (log.km) {
+            const km = parseFloat(log.km)||0;
+            totalKm += km;
+            if (d===6 && km > longestRun) longestRun = km;
+          }
+          if (!achFound && log.achilles) {
+            lastAchilles = log.achilles;
+            achFound = true;
+          }
+        }
+      }
+    });
+  }
+  // search for most recent achilles rating
+  lastAchilles = null;
+  outer: for (let w=16; w>=1; w--) {
+    for (let d=6; d>=0; d--) {
+      const log = getLog(w,d);
+      if (log && log.achilles) { lastAchilles = log.achilles; break outer; }
+    }
+  }
+  return { done, total, totalKm, longestRun, lastAchilles };
+}
+
+const ACH_COLORS = {1:'#3fb950',2:'#7ee787',3:'var(--amber)',4:'#f97316',5:'var(--red)'};
+
+function renderStats() {
+  const curWk = getCurrentWeek();
+  const st = computeStats();
+  const pct = st.total > 0 ? Math.round(st.done/st.total*100) : 0;
+  const phase = curWk<=6?1:curWk<=12?2:3;
+  const phaseNames = {1:'Foundation',2:'Build',3:'Peak & Taper'};
+  document.getElementById('s-week').textContent = state.startDate ? `Wk ${curWk} / 16` : '—';
+  document.getElementById('s-phase').textContent = state.startDate ? `Phase ${phase}: ${phaseNames[phase]}` : '—';
+  document.getElementById('s-done').textContent = st.done;
+  document.getElementById('s-pct').textContent = pct+'%';
+  document.getElementById('s-longrun').textContent = st.longestRun ? st.longestRun.toFixed(1)+' km' : '—';
+  document.getElementById('s-total-km').textContent = st.totalKm.toFixed(1)+' km';
+  const achEl = document.getElementById('s-achilles');
+  if (st.lastAchilles) {
+    achEl.textContent = st.lastAchilles+'/5';
+    achEl.style.color = ACH_COLORS[st.lastAchilles]||'var(--text)';
+  } else {
+    achEl.textContent = '—';
+    achEl.style.color = 'var(--text)';
+  }
+}
+
+// ─── WEEK NAV ─────────────────────────────────────────────────────────────────
+const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+function renderWeekNav() {
+  const wk = PLAN[viewWeek-1];
+  const curWk = getCurrentWeek();
+  const phaseClasses = {1:'p1',2:'p2',3:'p3'};
+  document.getElementById('hdr-phase').textContent = `Phase ${wk.phase}: ${wk.phaseName}`;
+  document.getElementById('hdr-phase').className = `phase-pill ${phaseClasses[wk.phase]}`;
+  document.getElementById('wk-label').textContent = `Week ${viewWeek} of 16`;
+  document.getElementById('wk-sub').textContent = `Phase ${wk.phase}: ${wk.phaseName} · ${wk.theme}`;
+  document.getElementById('prev-wk').disabled = viewWeek <= 1;
+  document.getElementById('next-wk').disabled = viewWeek >= 16;
+
+  // Warn banner
+  const wb = document.getElementById('warn-banner');
+  if (wk.warn) {
+    wb.classList.remove('hidden');
+    document.getElementById('warn-text').textContent = wk.warn;
+  } else {
+    wb.classList.add('hidden');
+  }
+
+  // Pips
+  const pipsEl = document.getElementById('week-pips');
+  pipsEl.innerHTML = '';
+  for (let i=1; i<=16; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'pip ' + (i < curWk ? 'done' : i===curWk ? 'cur' : 'fut');
+    pip.title = `Week ${i}`;
+    pip.onclick = () => { viewWeek = i; render(); };
+    pipsEl.appendChild(pip);
+  }
+}
+
+// ─── DAY GRID ─────────────────────────────────────────────────────────────────
+function renderGrid() {
+  const wk = PLAN[viewWeek-1];
+  const dates = getWeekDates(viewWeek);
+  const grid = document.getElementById('day-grid');
+  grid.innerHTML = '';
+
+  wk.sessions.forEach((s, d) => {
+    const log = getLog(viewWeek, d);
+    const today = isToday(dates[d]);
+    const status = log ? log.status : null;
+
+    const card = document.createElement('div');
+    let cls = `card type-${s.type}`;
+    if (today) cls += ' is-today';
+    if (status) cls += ` s-${status}`;
+    card.className = cls;
+
+    // Today tag
+    if (today) {
+      const tag = document.createElement('span');
+      tag.className = 'today-tag';
+      tag.textContent = 'TODAY';
+      card.appendChild(tag);
+    }
+
+    // Day name
+    const dayEl = document.createElement('div');
+    dayEl.className = 'card-day';
+    dayEl.textContent = DAY_NAMES[d];
+    card.appendChild(dayEl);
+
+    // Date
+    if (dates[d]) {
+      const dateEl = document.createElement('div');
+      dateEl.className = 'card-date';
+      dateEl.textContent = formatDate(dates[d]);
+      card.appendChild(dateEl);
+    }
+
+    // Type badge
+    const badge = document.createElement('span');
+    const badgeMap = {run:'tb-run',strength:'tb-strength',rest:'tb-rest'};
+    badge.className = `type-badge ${badgeMap[s.type]||'tb-rest'}`;
+    const typeLabel = s.type==='strength' ? (s.subtype==='upper'?'Upper Str':s.subtype==='mobility'?'Mobility':'Lower Str') : s.type==='run'?'Run':'Rest';
+    badge.textContent = typeLabel;
+    card.appendChild(badge);
+
+    // Label
+    const lbl = document.createElement('div');
+    lbl.className = 'card-label';
+    lbl.textContent = s.label;
+    card.appendChild(lbl);
+
+    // Desc (truncated)
+    const desc = document.createElement('div');
+    desc.className = 'card-desc';
+    desc.textContent = s.desc || (s.details[0]||'');
+    card.appendChild(desc);
+
+    // Footer
+    const foot = document.createElement('div');
+    foot.className = 'card-foot';
+
+    // Risk
+    if (s.risk) {
+      const r = document.createElement('span');
+      const rMap = {'medium':'r-medium','high':'r-high','very-high':'r-very-high'};
+      r.className = `risk-tag ${rMap[s.risk]||''}`;
+      r.textContent = s.risk==='very-high'?'⚡ V.HIGH':s.risk.toUpperCase();
+      foot.appendChild(r);
+    } else {
+      foot.appendChild(document.createElement('span'));
+    }
+
+    // Status dot
+    const dot = document.createElement('div');
+    const dotMap = {completed:'dot-completed',skipped:'dot-skipped',modified:'dot-modified'};
+    dot.className = `status-dot ${dotMap[status]||'dot-pending'}`;
+    foot.appendChild(dot);
+
+    card.appendChild(foot);
+
+    // Logged km
+    if (log && log.km) {
+      const logged = document.createElement('div');
+      logged.className = 'card-logged';
+      logged.textContent = `✓ ${parseFloat(log.km).toFixed(1)} km`;
+      if (log.time) logged.textContent += ` · ${log.time}`;
+      card.appendChild(logged);
+    }
+    if (log && log.achilles) {
+      const achEl = document.createElement('div');
+      achEl.className = 'card-logged';
+      achEl.style.color = ACH_COLORS[log.achilles]||'';
+      achEl.textContent = `Chain: ${log.achilles}/5`;
+      card.appendChild(achEl);
+    }
+
+    if (s.type !== 'rest') {
+      card.addEventListener('click', () => openModal(viewWeek, d));
+    }
+
+    grid.appendChild(card);
+  });
+}
+
+// ─── LONG RUN CHART ───────────────────────────────────────────────────────────
+const LONG_RUN_KM = [6,7,8,6,9,10,10,12,13,10,15,17,19,21,14,21.1];
+
+function renderChart() {
+  const curWk = getCurrentWeek();
+  const maxKm = 22;
+  const lrc = document.getElementById('lrc');
+  lrc.innerHTML = '';
+  LONG_RUN_KM.forEach((km, i) => {
+    const wNum = i+1;
+    const log = getLog(wNum, 6);
+    const done = log && log.status === 'completed';
+    const isCur = wNum === curWk;
+    const isCut = [4,10].includes(wNum);
+
+    const col = document.createElement('div');
+    col.className = 'lrc-col';
+    col.onclick = () => { viewWeek = wNum; render(); };
+
+    const tip = document.createElement('div');
+    tip.className = 'lrc-tip';
+    const logKm = done && log.km ? ` (logged ${parseFloat(log.km).toFixed(1)} km)` : '';
+    tip.textContent = `Wk ${wNum}: ${km} km${isCut?' (cutback)':''}${logKm}`;
+    col.appendChild(tip);
+
+    const kmLabel = document.createElement('div');
+    kmLabel.className = 'lrc-km';
+    kmLabel.textContent = km;
+    col.appendChild(kmLabel);
+
+    const bar = document.createElement('div');
+    const h = Math.round(km/maxKm*60);
+    bar.style.height = h+'px';
+    bar.className = 'lrc-bar ' + (done ? 'done' : isCur ? 'cur' : isCut ? 'cut' : 'fut');
+    col.appendChild(bar);
+
+    const wkLabel = document.createElement('div');
+    wkLabel.className = 'lrc-wk';
+    wkLabel.textContent = `W${wNum}`;
+    if (isCur) wkLabel.style.color = 'var(--orange)';
+    col.appendChild(wkLabel);
+
+    lrc.appendChild(col);
+  });
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────────────────
+function openModal(w, d) {
+  const s = PLAN[w-1].sessions[d];
+  modal = { weekNum: w, dayIdx: d };
+  const log = getLog(w, d);
+
+  modalStatus = log ? log.status : null;
+  modalAchilles = log ? log.achilles : null;
+
+  document.getElementById('m-title').textContent = s.label;
+  const dates = getWeekDates(w);
+  const dateStr = dates[d] ? ` — ${DAY_NAMES[d]} ${formatDate(dates[d])}` : ` — ${DAY_NAMES[d]}`;
+  document.getElementById('m-sub').textContent = `Week ${w}${dateStr}`;
+  document.getElementById('m-session-label').textContent = s.desc || 'What to do';
+
+  const detList = document.getElementById('m-details');
+  detList.innerHTML = '';
+  s.details.forEach(det => {
+    const li = document.createElement('li');
+    li.textContent = det;
+    detList.appendChild(li);
+  });
+
+  // Show/hide run section
+  const runSec = document.getElementById('run-log-section');
+  if (s.type === 'run') {
+    runSec.classList.remove('hidden');
+    document.getElementById('log-target-km').value = s.km ? s.km+' km' : '';
+    document.getElementById('log-km').value = log ? (log.km||'') : '';
+    document.getElementById('log-time').value = log ? (log.time||'') : '';
+    document.getElementById('log-pace').value = log ? (log.pace||'') : '';
+  } else {
+    runSec.classList.add('hidden');
+  }
+
+  // Status buttons
+  ['done','skip','mod'].forEach(v => {
+    const btn = document.getElementById('sbut-'+v);
+    const statusMap = {done:'completed',skip:'skipped',mod:'modified'};
+    btn.classList.toggle('active', modalStatus === statusMap[v]);
+  });
+
+  // Achilles
+  document.querySelectorAll('.ach-btn').forEach(btn => {
+    btn.classList.toggle('act', parseInt(btn.dataset.v) === modalAchilles);
+  });
+
+  document.getElementById('log-notes').value = log ? (log.notes||'') : '';
+
+  document.getElementById('log-overlay').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('log-overlay').classList.add('hidden');
+  modal = { weekNum: null, dayIdx: null };
+  modalStatus = null;
+  modalAchilles = null;
+}
+
+// Pace calculation
+function calcPace(km, timeStr) {
+  if (!km || !timeStr) return '';
+  const parts = timeStr.split(':').map(Number);
+  let secs = 0;
+  if (parts.length === 2) secs = parts[0]*60 + parts[1];
+  else if (parts.length === 3) secs = parts[0]*3600 + parts[1]*60 + parts[2];
+  else return '';
+  if (!km || secs === 0) return '';
+  const pacePerKm = secs / km;
+  const mins = Math.floor(pacePerKm/60);
+  const sec = Math.round(pacePerKm%60);
+  return `${mins}:${sec.toString().padStart(2,'0')}/km`;
+}
+
+// ─── EVENT LISTENERS ─────────────────────────────────────────────────────────
+document.getElementById('prev-wk').onclick = () => { if(viewWeek>1){viewWeek--;render();} };
+document.getElementById('next-wk').onclick = () => { if(viewWeek<16){viewWeek++;render();} };
+document.getElementById('btn-jump-today').onclick = () => { viewWeek=getCurrentWeek(); render(); };
+document.getElementById('btn-change-date').onclick = () => {
+  document.getElementById('setup-date').value = state.startDate||'';
+  document.getElementById('setup-overlay').classList.remove('hidden');
+};
+document.getElementById('m-close').onclick = closeModal;
+document.getElementById('log-overlay').onclick = (e) => { if(e.target===e.currentTarget) closeModal(); };
+
+// Status buttons
+['done','skip','mod'].forEach(v => {
+  document.getElementById('sbut-'+v).onclick = () => {
+    const map = {done:'completed',skip:'skipped',mod:'modified'};
+    modalStatus = modalStatus === map[v] ? null : map[v];
+    ['done','skip','mod'].forEach(x => {
+      document.getElementById('sbut-'+x).classList.toggle('active', modalStatus === map[x]);
+    });
+  };
+});
+
+// Achilles buttons
+document.querySelectorAll('.ach-btn').forEach(btn => {
+  btn.onclick = () => {
+    const v = parseInt(btn.dataset.v);
+    modalAchilles = modalAchilles === v ? null : v;
+    document.querySelectorAll('.ach-btn').forEach(b => {
+      b.classList.toggle('act', parseInt(b.dataset.v) === modalAchilles);
+    });
+  };
+});
+
+// Pace auto-calc
+function updatePace() {
+  const km = parseFloat(document.getElementById('log-km').value);
+  const time = document.getElementById('log-time').value;
+  const pace = calcPace(km, time);
+  document.getElementById('log-pace').value = pace;
+}
+document.getElementById('log-km').oninput = updatePace;
+document.getElementById('log-time').oninput = updatePace;
+
+// Save
+document.getElementById('m-save').onclick = () => {
+  const {weekNum:w, dayIdx:d} = modal;
+  if (w===null) return;
+  const s = PLAN[w-1].sessions[d];
+  const logData = {
+    status: modalStatus || 'completed',
+    achilles: modalAchilles,
+    notes: document.getElementById('log-notes').value.trim(),
+  };
+  if (s.type === 'run') {
+    const km = document.getElementById('log-km').value;
+    const time = document.getElementById('log-time').value;
+    if (km) logData.km = km;
+    if (time) logData.time = time;
+    if (km && time) logData.pace = calcPace(parseFloat(km), time);
+  }
+  setLog(w, d, logData);
+  closeModal();
+  render();
+};
+
+// Clear log
+document.getElementById('m-clear').onclick = () => {
+  const {weekNum:w, dayIdx:d} = modal;
+  if (w!==null) clearLog(w, d);
+  closeModal();
+  render();
+};
+
+// Setup
+document.getElementById('setup-go').onclick = () => {
+  const dateVal = document.getElementById('setup-date').value;
+  if (!dateVal) { document.getElementById('setup-date').focus(); return; }
+  state.startDate = dateVal;
+  saveState();
+  document.getElementById('setup-overlay').classList.add('hidden');
+  viewWeek = getCurrentWeek();
+  render();
+};
+
+// Default setup date to next Monday
+const nd = new Date();
+nd.setDate(nd.getDate() + (8 - nd.getDay()) % 7 || 7);
+document.getElementById('setup-date').value = toISO(nd);
+
+// Keyboard nav
+document.addEventListener('keydown', (e) => {
+  if (!document.getElementById('log-overlay').classList.contains('hidden')) return;
+  if (e.key==='ArrowRight') { if(viewWeek<16){viewWeek++;render();} }
+  if (e.key==='ArrowLeft') { if(viewWeek>1){viewWeek--;render();} }
+});
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  renderStats();
+  renderWeekNav();
+  renderGrid();
+  renderChart();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+if (isAuthed()) {
+  document.getElementById('gate-overlay').classList.add('hidden');
+  initApp();
+} else {
+  document.getElementById('gate-input').focus();
+}
+</script>
+</body>
+</html>
