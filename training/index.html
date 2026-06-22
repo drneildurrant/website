@@ -330,7 +330,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 //   crypto.subtle.digest('SHA-256',new TextEncoder().encode('yourpassword'))
 //     .then(b=>console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')))
 // Then replace GATE_HASH with the result.
-const GATE_HASH = '16410a3769dcfd871dda91024635e0f69491301917fe2aea7f90303872b62deb';
+const GATE_HASH = 'REPLACE_WITH_SHA256_HASH';
 const GATE_KEY  = 'neil_hm_auth';
 
 async function hashStr(s) {
