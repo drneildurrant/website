@@ -31,6 +31,8 @@ Substack "Provocations" feed ──(weekly GH Action)──▶ scripts/fetch_sub
 quotes.json (hand-edited) ─────────────────────────────────────────────────────────(fetch)──▶ home page rotating pull quote
 ```
 
+> **Idea — auto-source the pull quotes from the corpus.** Today `quotes.json` is hand-picked; it could be generated the way `posts.json` is. A scheduled GitHub Action (a sibling of `scripts/fetch_substack.py`) samples short, public-safe pull-quotes from across the whole corpus via the retrieval API and writes a *pool* that the hero randomises client-side — randomised quotes from every part of the database, no manual curation. Do it at **build time, not runtime**: CI holds the key and calls the private backend, so the *live* home page still never talks to it — keeping the [public/private boundary](#publicprivate-boundary) and the instant, can't-fail static fetch. Caveat: the corpus is gated, so the job must emit only short snippets, never full passages.
+
 ## Public/private boundary
 
 This is the load-bearing architectural decision, so don't "consolidate" it away:
