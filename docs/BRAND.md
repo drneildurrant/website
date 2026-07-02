@@ -50,18 +50,24 @@ Canonical implementation: `spiralSVG()` in `sanskrit-tantra/fred.html`. Paramete
 - **The line** — `stroke: var(--muted)`, `stroke-width: 0.8`, round caps. Fine but sharp.
 - **The four stations** — placed by compass bearing + which coil (turn, counted in from the mouth):
 
-  | # | Station | Tagline | Bearing | Coil |
-  |---|---|---|---|---|
-  | 0 | Engage | *the threshold* | N | turn 1 |
-  | 1 | Encounter | *come inside* | SW | turn 1 |
-  | 2 | Explore | *(TBD)* | E | turn 2 |
-  | 3 | Examine | *(TBD)* | — | the core (centre) |
+  | # | Station | Invitation | Call | Bearing | Coil |
+  |---|---|---|---|---|---|
+  | 0 | Engage | *cross the threshold* | Find your tribe | N | turn 1 |
+  | 1 | Encounter | *come inside* | Choose your Encounter | SW | turn 1 |
+  | 2 | Explore | *look further* | Find your heritage | E | turn 2 |
+  | 3 | Examine | *you've arrived* | Plumb the depths ‡ | — | the core (centre) |
 
-  The **tagline** is the identity line a station's surface shows beneath the "ENCOUNTER"/
-  "ENGAGE"/… eyebrow. They are distinct and must not be swapped: **"the threshold" is Engage's**
-  (the doorway, not yet built); **Encounter is "come inside"** — the visitor has already crossed,
-  and now meets a voice. (This is separate from the *brand* line "Liminex · the threshold" —
-  *limen* = threshold is the whole product's name; the station taglines sit under it.)
+  Each station surface carries a **three-part header lockup** — implemented on Encounter, the
+  template for the rest:
+  - **eyebrow** — the STATION name (e.g. "ENCOUNTER"), mono uppercase.
+  - **invitation** — the line beneath it: the visitor's movement/state. Read down the column it
+    is a deliberate progression: *cross the threshold → come inside → look further → you've arrived.*
+  - **call** — the imperative heading in the body: what the station offers (its CTA).
+
+  Invitation and call are per-station and must not be swapped. Note the noun "*the threshold*" is
+  the **brand** line ("Liminex · the threshold", *limen* = the product's name); Engage's invitation
+  is the verb form, "*cross the threshold*". ‡ Examine's call is **provisional** — "Plumb the depths"
+  vs. a "Find your …" parallel (e.g. "Find your ground"); to be locked when Examine is designed.
 
   Each station is an **empty grey holder** — `fill: var(--bg)`, `stroke: var(--faint)`, `stroke-width: 0.5`. The station for the **current page** is filled solid `var(--crimson)` ("you are here"). Exactly one dot is crimson per page; the rest stay holders. Dot radii taper inward: `[1.05, 0.92, 0.8, 0.9]`.
 
